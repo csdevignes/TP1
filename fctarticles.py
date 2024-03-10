@@ -42,19 +42,14 @@ def getArticle(articleId):
     articleKey = 'articles:' + str(articleId)
     return r.hgetall(articleKey)
 
-def getTimeline():
-    '''
-    Renvoie la timeline des articles stockée dans le sorted set 'time'
-    Du plus ancien au plus récent
-    '''
-    return r.zrange('time', 0, -1, withscores=True, desc=False)
-
 def incrVote(articleId):
     '''
-    Récupère la clé de l'article et augmente le nombre de votes de 197.
+    Récupère la clé de l'article et augmente le nombre de votes de 1.
+    Dans le set score, augmente le score de 197.
     '''
     articleKey = 'articles:' + str(articleId)
-    r.hincrby(articleKey, 'votes', 197)
+    r.hincrby(articleKey, 'votes', 1)
+    r.zincrby('score', 197, articleKey)
 
 def makeVote(userId, articleId):
     '''
@@ -70,7 +65,6 @@ def makeVote(userId, articleId):
         setname = "votes:" + str(articleId)
         r.sadd(setname, userId)
 
-
 def listVoters(articleId):
     '''
     Méthode qui permet de connaitre pour un article donné, la liste des utilisateurs qui
@@ -78,14 +72,6 @@ def listVoters(articleId):
     '''
     setname = "votes:" + str(articleId)    
     return r.smembers(setname)
-
-def appendScoreSet(articleKey):
-    '''
-    Récupère le score de votes d'un article, puis le stocke avec son identifiant dans un
-    sorted set de clé 'score'.
-    '''
-    score = r.hget(articleKey, 'votes')
-    r.zadd('score', mapping={articleKey : score})
 
 def listArticles():
     '''
@@ -105,13 +91,12 @@ def listArticles():
         setArticles.update(scan[1])
     return setArticles
 
-def makeScoreSet():
+def getSortedSet(SetName, desc=True):
     '''
-    Crée un sorted set contenant tous les articles de la base et leur nombre de votes
+    Renvoie le sorted set contenant la timeline (SetName = 'time')
+    ou les scores (SetName = 'score') des articles.
     '''
-    for articleKey in listArticles():
-        appendScoreSet(articleKey)
-    return r.zrange('score', 0, -1, withscores=True, desc=True)
+    return r.zrange(SetName, 0, -1, withscores=True, desc=desc)
 
 def top10():
-    return makeScoreSet()[0:10]
+    return getSortedSet('score')[0:10]
