@@ -67,3 +67,14 @@ On crée une méthode qui récupère la liste de tous les articles de la base, e
 
 ### Top 10 des articles avec le meilleur score
 La structure de sorted set est ordonnée, il suffit donc de récupérer les valeurs du set 'score' par ordre décroissant, et de sélectionner les 10 premiers élements pour obtenir le top10 des articles.
+
+## Question n°3 : bonus
+Ajout de la gestion des catégories. Les fonctions concernées sont décrite dans un nouveau fichier
+`categorie.py`
+
+### Gestion des catégories
+Il faut ajouter une information qui permette de savoir a quelle catégorie appartient un article.
+Pour cela, on propose de créer un set categorie:nomcategorie par catégorie, et d'y inclure les articles.
+
+L'ajout d'un article à une catégorie se fera indépendemment de la création de l'article dans la
+base.
